@@ -69,7 +69,9 @@ def deep_learning() -> None:
     # https://pytorch.org/vision/stable/generated/torchvision.transforms.ToTensor.html
     # basically transforms a PIL image to data 0->1.0.
     #
-    trans: transforms.Compose = transforms.Compose([transforms.ToImage(), transforms.ToDtype(torch.float32, scale=True)])
+    trans: transforms.Compose = transforms.Compose([transforms.ToImage(),  # PIL image -> tensor
+                                                    transforms.ToDtype(torch.float32, scale=True),  # normalize
+                                                    ])
     train_set.transform = trans
     valid_set.transform = trans
 

@@ -4,16 +4,13 @@ from typing import cast
 import torch
 import torch.cuda
 import torch.nn as nn
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader
 from torch.optim import Adam
 from torch import Tensor
 
 # Visualization tools
-import torchvision
 import torchvision.transforms.v2 as transforms
 from torchvision.datasets import MNIST
-import torchvision.transforms.functional as F
-import matplotlib.pyplot as plt
 
 
 def get_batch_accuracy(output: Tensor, y: Tensor, N: int) -> float:
@@ -67,7 +64,12 @@ def deep_learning() -> None:
     train_set: MNIST = MNIST("./data/", train=True, download=True)
     valid_set: MNIST = MNIST("./data/", train=False, download=True)
 
-    trans: transforms.Compose = transforms.Compose([transforms.ToTensor()])
+    # original logic is deprecated
+    # trans: transforms.Compose = transforms.Compose([transforms.ToTensor()])
+    # https://pytorch.org/vision/stable/generated/torchvision.transforms.ToTensor.html
+    # basically transforms a PIL image to data 0->1.0.
+    #
+    trans: transforms.Compose = transforms.Compose([transforms.ToImage(), transforms.ToDtype(torch.float32, scale=True)])
     train_set.transform = trans
     valid_set.transform = trans
 

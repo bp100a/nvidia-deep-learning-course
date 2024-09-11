@@ -1,9 +1,7 @@
 """basically the Jupyter notebook from Nvidia Deep Learning course"""
-from typing import cast
-
 import torch
 import torch.cuda
-import torch.nn as nn
+from torch import nn
 from torch.utils.data import DataLoader
 from torch.optim import Adam
 from torch import Tensor
@@ -13,17 +11,19 @@ import torchvision.transforms.v2 as transforms
 from torchvision.datasets import MNIST
 
 
-def get_batch_accuracy(output: Tensor, y: Tensor, N: int) -> float:
+def get_batch_accuracy(output: Tensor, y: Tensor, size: int) -> float:
+    """determine accuracy of the batch"""
     pred: Tensor = output.argmax(dim=1, keepdim=True)
     correct: int = pred.eq(y.view_as(pred)).sum().item()
-    return correct / N
+    return correct / size
 
 
-def train(device: torch.device, model: nn.Sequential, optimizer: Adam, loss_function: callable, train_loader: DataLoader) -> None:
+def train(device: torch.device, model: nn.Sequential, optimizer: Adam,
+          loss_function: callable, train_loader: DataLoader) -> None:
     """train the model"""
     loss: int = 0
     accuracy: int = 0
-    train_N: int = len(train_loader.dataset)  # type: ignore # https://github.com/pytorch/pytorch/issues/47055
+    train_size: int = len(train_loader.dataset)  # type: ignore # https://github.com/pytorch/pytorch/issues/47055
 
     model.train()
     for x, y in train_loader:
@@ -35,15 +35,15 @@ def train(device: torch.device, model: nn.Sequential, optimizer: Adam, loss_func
         optimizer.step()
 
         loss += batch_loss.item()
-        accuracy += get_batch_accuracy(output, y, train_N)
-    print('Train - Loss: {:.4f} Accuracy: {:.4f}'.format(loss, accuracy))
+        accuracy += get_batch_accuracy(output, y, train_size)
+    print(f'Train - {loss=:.4f} {accuracy=:.4f}')
 
 
 def validate(device: torch.device, model: nn.Sequential, loss_function: callable, valid_loader: DataLoader) -> None:
     """validate the trained model"""
     loss: int = 0
     accuracy: int = 0
-    validation_N: int = len(valid_loader.dataset)  # type: ignore # https://github.com/pytorch/pytorch/issues/47055
+    validation_size: int = len(valid_loader.dataset)  # type: ignore # https://github.com/pytorch/pytorch/issues/47055
 
     model.eval()
     with torch.no_grad():
@@ -52,8 +52,8 @@ def validate(device: torch.device, model: nn.Sequential, loss_function: callable
             output = model(x)
 
             loss += loss_function(output, y).item()
-            accuracy += get_batch_accuracy(output, y, validation_N)
-    print('Valid - Loss: {:.4f} Accuracy: {:.4f}'.format(loss, accuracy))
+            accuracy += get_batch_accuracy(output, y, validation_size)
+    print(f'Valid - {loss=:.4f} {accuracy=:.4f}')
 
 
 def deep_learning() -> None:
@@ -106,7 +106,7 @@ def deep_learning() -> None:
 
     epochs: int = 5
     for epoch in range(epochs):
-        print('Epoch: {}'.format(epoch))
+        print(f'Epoch: {epoch}')
         train(device, model, optimizer, loss_function, train_loader)
         validate(device, model, loss_function, valid_loader)
 

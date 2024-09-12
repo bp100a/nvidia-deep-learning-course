@@ -1,6 +1,5 @@
 """American Sign Language (ASL) learning example"""
-# 3. Convolutional Neural Networks
-
+# 4. Data augmentation
 import os
 from typing import Any
 
@@ -92,13 +91,18 @@ def validate(model: Any, loss_function: callable) -> None:
 if __name__ == "__main__":
     """run the script"""
 
-    device = torch.device("cpu")
-    print(f"{torch.cuda.is_available()=}, {device=}")
+    device: torch.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if torch.cuda.is_available():
+        print(f"{torch.cuda.is_available()=}, {device=}")
+        major, minor = torch.cuda.get_device_capability()
+        if major < 7:
+            print(f"downgrade to CPU as CUDA Capability is {major}.{minor} ({torch.cuda.get_device_name()}), requires 7.0 or greater")
+            device = torch.device("cpu")  # switch to CPU
 
-    IMG_HEIGHT = 28
-    IMG_WIDTH = 28
-    IMG_CHS = 1
-    N_CLASSES = 24
+    IMG_HEIGHT: int = 28
+    IMG_WIDTH: int = 28
+    IMG_CHS: int = 1
+    N_CLASSES: int = 24
 
     root_dir: str = os.path.dirname(__file__)
     train_df = pd.read_csv(os.path.join(root_dir, "data", "asl_data", "sign_mnist_train.csv"))
@@ -113,9 +117,7 @@ if __name__ == "__main__":
     valid_loader = DataLoader(valid_data, batch_size=n)
     valid_N = len(valid_loader.dataset)
 
-
     # create the model that will process this using the Convolution block and the flattened inputs
-
     flattened_img_size = 75 * 3 * 3
 
     # Input 1 x 28 x 28

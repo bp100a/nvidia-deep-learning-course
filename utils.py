@@ -17,6 +17,7 @@ class MyConvBlock(nn.Module):
     def forward(self, x):
         return self.model(x)
 
+
 def get_batch_accuracy(output, y, N):
     pred = output.argmax(dim=1, keepdim=True)
     correct = pred.eq(y.view_as(pred)).sum().item()

@@ -98,6 +98,7 @@ if __name__ == "__main__":
         if major < 7:
             print(f"downgrade to CPU as CUDA Capability is {major}.{minor} ({torch.cuda.get_device_name()}), requires 7.0 or greater")
             device = torch.device("cpu")  # switch to CPU
+            # torch._dynamo.config.suppress_errors = True
 
     IMG_HEIGHT: int = 28
     IMG_WIDTH: int = 28
